@@ -15,7 +15,7 @@ jobs:
       matrix:
         model:
           - nanopi-r5s
-          - netgear_r8500
+          - armv8
           - x86_64
         tag:
           - type: rc2
