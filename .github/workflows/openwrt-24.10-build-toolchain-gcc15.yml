@@ -1,7 +1,8 @@
 name: openwrt-24.10-gcc15
 
 on: workflow_dispatch
-
+env:
+  BUILD_SCRIPT_MIRROR: "https://raw.githubusercontent.com/dd-ray/r5s_build_script/refs/heads/main"
 jobs:
   build:
     name: ${{ matrix.model }}-${{ matrix.libc }}-${{ matrix.tools }}
@@ -60,13 +61,10 @@ jobs:
 
     - name: Compile Toolchain
       working-directory: /builder
-      env:
-        git_name: private
-        git_password: ${{ secrets.git_password }}
       run: |
         [ "${{ matrix.libc }}" = "glibc" ] && export ENABLE_GLIBC=y
         [ "${{ matrix.tools }}" = "ccache" ] && export ENABLE_CCACHE=y
-        BUILD_TOOLCHAIN=y ENABLE_LTO=y ENABLE_BPF=y USE_GCC15=y ENABLE_MOLD=y bash <(curl -sS ${{ secrets.script_url_general }}) ${{ matrix.tag.type }} ${{ matrix.model }}
+        BUILD_SCRIPT_MIRROR=$BUILD_SCRIPT_MIRROR BUILD_TOOLCHAIN=y ENABLE_LTO=y ENABLE_BPF=y USE_GCC15=y ENABLE_MOLD=y bash <(curl -sS $BUILD_SCRIPT_MIRROR/openwrt/build.sh) ${{ matrix.tag.type }} ${{ matrix.model }}
 
     - name: Create release
       uses: ncipollo/release-action@v1.14.0
@@ -76,5 +74,5 @@ jobs:
         tag: ${{ matrix.tag.version }}
         commit: openwrt-24.10
         replacesArtifacts: true
-        token: ${{ secrets.workflow_token }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.WORKDIR }}/openwrt/toolchain-cache/*
