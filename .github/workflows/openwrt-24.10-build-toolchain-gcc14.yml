@@ -15,7 +15,6 @@ jobs:
       matrix:
         model:
           - nanopi-r5s
-          - armv8
           - x86_64
         tag:
           - type: dev
